@@ -1,0 +1,9 @@
+[Unit]
+Description=cluster deployment system
+
+[Service]
+ExecStart=/usr/bin/serf -config-dir /etc/serf
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
