@@ -21,7 +21,7 @@ Requires: serf arp-scan
 %install
 mkdir -p %{buildroot}/etc/serf
 mkdir -p %{buildroot}/usr/lib/redborder/bin
-install -D -m 0644 serf.service %{buildroot}/usr/lib/systemd/system/serf.service
+install -D -m 0644 resources/serf.service %{buildroot}/usr/lib/systemd/system/serf.service
 cp resources/*.rb %{buildroot}/usr/lib/redborder/bin
 cp resources/*.sh %{buildroot}/usr/lib/redborder/bin
 
