@@ -8,7 +8,7 @@ License: AGPL 3.0
 URL: https://github.com/redBorder/redborder-common
 Source0: %{name}-%{version}.tar.gz
 
-Requires: serf
+Requires: serf arp-scan
 
 %description
 %{summary}
@@ -20,15 +20,18 @@ Requires: serf
 
 %install
 mkdir -p %{buildroot}/etc/serf
+mkdir -p %{buildroot}/usr/lib/redborder/bin
 install -D -m 0644 serf.service %{buildroot}/usr/lib/systemd/system/serf.service
-install -D -m 0644 first.json %{buildroot}/etc/serf/00first.json
+cp resources/*.rb %{buildroot}/usr/lib/redborder/bin
+cp resources/*.sh %{buildroot}/usr/lib/redborder/bin
 
 %pre
 
 %files
 %defattr(0644,root,root)
-/etc/serf/00first.json
 /usr/lib/systemd/system/serf.service
+%defattr(0755,root,root)
+/usr/lib/redborder/bin
 %doc
 
 %changelog

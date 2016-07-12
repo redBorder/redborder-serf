@@ -2,7 +2,8 @@
 Description=cluster deployment system
 
 [Service]
-ExecStart=/usr/bin/serf -config-dir /etc/serf
+ExecStart=/usr/lib/redborder/bin/serf-agent.sh
+ExecStartPost=/usr/lib/redborder/bin/serf-agent-post.sh
 Restart=always
 
 [Install]

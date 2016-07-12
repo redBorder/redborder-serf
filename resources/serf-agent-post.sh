@@ -4,4 +4,4 @@ source /etc/profile
 
 rvm gemset use default
 
-exec serf-agent.rb $*
+exec serf-agent-post.rb $*
