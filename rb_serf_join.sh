@@ -83,44 +83,48 @@ done
 
 #Check if serf agent is running
 #TODO: use systemd to get serf status
-
-#Is there master?
-isThereMaster
-#If there is a master node, I am not a master node.
-if [ "x$master_chosen" = "xyes" ] ; then
-    echo "There is already a master node"
+systemctl is-active serf.service > /dev/null
+if [ $? -ne 0 ] ; then
+    echo "Serf is not running, exiting..."
 else
-    lowestIP -tag role="$ALLOWED_ROLES"
-    #TODO: GET MY IP (ESTE ES DE PRUEBA)
-    my_ip=$(ip a s bond0 2>/dev/null |grep inet|grep brd|awk '{print $2}'|head -n 1|tr '/' ' '|awk '{print $1}')
-    #If there is a node with lowest ip, i am not a master node
-    if [ "x$my_ip" != "x$lowest_ip" ] ; then
-        $SERF_BIN tags -delete master
-        echo "This node is not master"
+    #Is there master?
+    isThereMaster
+    #If there is a master node, I am not a master node.
+    if [ "x$master_chosen" = "xyes" ] ; then
+        echo "There is already a master node"
     else
-        #If i am the node with lowest ip, i am a temporal master
-	      $SERF_BIN tags -set master=yes
-        EXIT=no
-        counter=0
-        while [ "x$EXIT" = "xno" -a $counter -le 10 ] ; do
-            #Wait to detect if there is another recent master
-            sleep 2
-            #Is there another master?
-            isThereMaster $OUR_HOSTNAME
-            if [ "x$another_master" = "xno" ] ; then
-	              echo "This node is the new master";
-                EXIT=yes
-            else
-                #Am I the lowest IP of master nodes?
-                lowestIP -tag master=yes
-                #If not, I am not a master node
-                if [ "x$my_ip" != "x$lowest_ip" ] ; then
-                    echo "Found other master, deleting master tag for this node"
-                    $SERF_BIN tags -delete master
+        lowestIP -tag role="$ALLOWED_ROLES"
+        #TODO: GET MY IP (ESTE ES DE PRUEBA)
+        my_ip=$(ip a s bond0 2>/dev/null |grep inet|grep brd|awk '{print $2}'|head -n 1|tr '/' ' '|awk '{print $1}')
+        #If there is a node with lowest ip, i am not a master node
+        if [ "x$my_ip" != "x$lowest_ip" ] ; then
+            $SERF_BIN tags -delete master
+            echo "This node is not master"
+        else
+            #If i am the node with lowest ip, i am a temporal master
+    	      $SERF_BIN tags -set master=yes
+            EXIT=no
+            counter=0
+            while [ "x$EXIT" = "xno" -a $counter -le 10 ] ; do
+                #Wait to detect if there is another recent master
+                sleep 2
+                #Is there another master?
+                isThereMaster $OUR_HOSTNAME
+                if [ "x$another_master" = "xno" ] ; then
+    	              echo "This node is the new master";
                     EXIT=yes
+                else
+                    #Am I the lowest IP of master nodes?
+                    lowestIP -tag master=yes
+                    #If not, I am not a master node
+                    if [ "x$my_ip" != "x$lowest_ip" ] ; then
+                        echo "Found other master, deleting master tag for this node"
+                        $SERF_BIN tags -delete master
+                        EXIT=yes
+                    fi
                 fi
-            fi
-            let counter=counter+1
-        done
+                let counter=counter+1
+            done
+        fi
     fi
 fi
