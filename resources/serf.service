@@ -4,7 +4,10 @@ Description=cluster deployment system
 [Service]
 ExecStart=/usr/lib/redborder/bin/serf-agent.sh
 ExecStartPost=/usr/lib/redborder/bin/serf-agent-post.sh
-Restart=always
+KillSignal=SIGINT
+User=root
+TimeoutStartSec=3600
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target

@@ -4,6 +4,7 @@ require 'ipaddr'
 require 'netaddr'
 require 'system/getifaddrs'
 require 'arp_scan'
+require 'json'
 
 def local_ip?(ip)
     ret = false
@@ -47,9 +48,10 @@ discover_net = nil
 System.get_all_ifaddrs.each do |netdev|
     if netdev[:inet_addr] == serf_conf["bind"]
         discover_dev = netdev
+        break
     end
 end
-unless discover_dev.nil?
+if discover_dev.nil?
     p "Error: no devices found for IP address #{serf_conf["bind"]}"
     exit(1)
 end
@@ -61,7 +63,7 @@ discover_net = NetAddr::CIDR.create("#{discover_dev[:inet_addr]}/#{discover_dev[
 
 # with all the information, we can loop forever until a serf node is detected and joined
 f_break = false
-count = 100
+count = 3
 while count > 0
     report_arpscan = ARPScan("-I #{discover_dev[:interface]} #{discover_net.network}#{discover_net.netmask}")
     report_arpscan.hosts.each do |host|
@@ -70,6 +72,7 @@ while count > 0
             next
         end
         # trying to connect to host.ip_addr
+        p "Trying to join to #{host.ip_addr}"
         ret = system("serf join #{host.ip_addr}")
         if ret
             # Joined successfuly ... exiting
@@ -81,7 +84,7 @@ while count > 0
     # scan every 10 seconds
     count = count - 1
     p "Warning: no serf node found, trying again #{count} times" if count > 0
-    sleep(30)
+    sleep(1)
 end
 
 fPost

@@ -2,6 +2,6 @@
 
 source /etc/profile
 
-rvm gemset use default
+rvm gemset use default &>/dev/null
 
 exec serf-agent-post.rb $*
