@@ -52,9 +52,34 @@ function isThereMaster() {
 function lowestIP() {
     ip_members_result=$($SERF_BIN members $* -format=json -status alive)
     if [ $? -eq 0 ] ; then
-        ip_list=$(echo $ip_members_result | jq -r .members[].addr)
+        if [ "x$(echo $ip_members_result | jq -r .members)" != "xnull" ] ; then
+            ip_list=$(echo $ip_members_result | jq -r .members[].addr)
+            if [ $? -eq 0 ] ; then
+                lowest_ip=$(echo $ip_list | tr ' ' '\n' | sort | awk '{split($0,a,":"); print a[1]}' | head -n1)
+            else
+                echo "Error parsing serf members response"
+                exit_function 3;
+            fi
+        else
+            #Valid lowest ip not found
+            lowest_ip=""
+        fi
+    else
+        echo "Error in serf members command when trying to get lowest ip!!"
+        echo $ip_members_result
+    fi
+}
+
+#
+# Function to get IP of this node using Serf
+# 
+function get_myip() {
+    my_ip="null"
+    ip_members_result=$($SERF_BIN members -name $OUR_HOSTNAME -format=json -status alive)
+    if [ $? -eq 0 ] ; then
+        ip_result=$(echo $ip_members_result | jq -r .members[].addr)
         if [ $? -eq 0 ] ; then
-            lowest_ip=$(echo $ip_list | tr ' ' '\n' | sort | awk '{split($0,a,":"); print a[1]}' | head -n1)
+            my_ip=$(echo $ip_result | awk '{split($0,a,":"); print a[1]}')
         else
             echo "Error parsing serf members response"
             exit_function 3;
@@ -62,7 +87,8 @@ function lowestIP() {
     else
         echo "Error in serf members command when trying to get lowest ip!!"
         echo $ip_members_result
-    fi
+    fi 
+
 }
 
 #Usage function
@@ -82,7 +108,6 @@ while getopts "hr:o:" opt ; do
 done
 
 #Check if serf agent is running
-#TODO: use systemd to get serf status
 systemctl is-active serf.service > /dev/null
 if [ $? -ne 0 ] ; then
     echo "Serf is not running, exiting..."
@@ -95,14 +120,14 @@ else
     else
         lowestIP -tag role="$ALLOWED_ROLES"
         #TODO: GET MY IP (ESTE ES DE PRUEBA)
-        my_ip=$(ip a s bond0 2>/dev/null |grep inet|grep brd|awk '{print $2}'|head -n 1|tr '/' ' '|awk '{print $1}')
+        get_myip
         #If there is a node with lowest ip, i am not a master node
         if [ "x$my_ip" != "x$lowest_ip" ] ; then
             $SERF_BIN tags -delete master
             echo "This node is not master"
         else
             #If i am the node with lowest ip, i am a temporal master
-    	      $SERF_BIN tags -set master=yes
+    	    $SERF_BIN tags -set master=yes
             EXIT=no
             counter=0
             while [ "x$EXIT" = "xno" -a $counter -le 10 ] ; do
