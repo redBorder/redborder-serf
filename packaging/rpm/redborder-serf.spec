@@ -28,6 +28,9 @@ cp resources/*.sh %{buildroot}/usr/lib/redborder/bin
 
 %pre
 
+%post
+systemctl daemon-reload
+
 %files
 %defattr(0644,root,root)
 /usr/lib/systemd/system/serf.service
