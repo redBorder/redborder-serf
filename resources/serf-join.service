@@ -6,6 +6,8 @@ Type=oneshot
 ExecStart=/usr/lib/redborder/bin/serf-agent-post.sh
 RemainAfterExit=yes
 User=root
+Requires=serf
+After=serf
 
 [Install]
 WantedBy=multi-user.target
