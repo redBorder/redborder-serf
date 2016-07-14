@@ -3,7 +3,6 @@ Description=cluster deployment system
 
 [Service]
 ExecStart=/usr/lib/redborder/bin/serf-agent.sh
-ExecStartPost=/usr/lib/redborder/bin/serf-agent-post.sh
 KillSignal=SIGINT
 User=root
 TimeoutStartSec=60
