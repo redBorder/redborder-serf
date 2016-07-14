@@ -6,7 +6,7 @@ ExecStart=/usr/lib/redborder/bin/serf-agent.sh
 ExecStartPost=/usr/lib/redborder/bin/serf-agent-post.sh
 KillSignal=SIGINT
 User=root
-TimeoutStartSec=3600
+TimeoutStartSec=60
 Restart=on-failure
 
 [Install]
