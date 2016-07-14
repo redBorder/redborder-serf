@@ -1,0 +1,11 @@
+[Unit]
+Description=serf join and master choose service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/redborder/bin/serf-agent-post.sh
+RemainAfterExit=yes
+User=root
+
+[Install]
+WantedBy=multi-user.target

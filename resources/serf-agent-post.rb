@@ -18,7 +18,9 @@ def local_ip?(ip)
     ret
 end
 
+#This code will be executed when node have been joined to cluster (end of script)
 def fPost
+    exec("serf_choose_master.sh")
     exit(0)
 end
 
@@ -36,7 +38,7 @@ else
 end
 
 unless serf_conf["discover"].nil?
-    # serf is in multicast configration, no need to join via unicast
+    # serf is in multicast configuration, no need to join via unicast
     fPost
 end
 
