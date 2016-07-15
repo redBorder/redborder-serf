@@ -2,7 +2,7 @@
 Description=serf join and master choose service
 
 [Service]
-ExecStart=/usr/lib/redborder/bin/serf-agent-post.sh
+ExecStart=/usr/lib/redborder/bin/serf-join.sh
 RemainAfterExit=yes
 User=root
 Requires=serf
