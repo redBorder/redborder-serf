@@ -1,0 +1,5 @@
+{
+    "event_handlers" : [
+        "query:certificate=serf-send-certificate.sh /etc/chef/redborder-validator.pem"        
+    ]
+}

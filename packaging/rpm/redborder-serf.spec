@@ -23,6 +23,7 @@ mkdir -p %{buildroot}/etc/serf
 mkdir -p %{buildroot}/usr/lib/redborder/bin
 install -D -m 0644 resources/serf.service %{buildroot}/usr/lib/systemd/system/serf.service
 install -D -m 0644 resources/serf-join.service %{buildroot}/usr/lib/systemd/system/serf-join.service
+install -D -m 0644 resources/01default_handlers.json %{buildroot}/etc/serf/01default_handlers.json
 cp resources/*.rb %{buildroot}/usr/lib/redborder/bin
 cp resources/*.sh %{buildroot}/usr/lib/redborder/bin
 
@@ -35,6 +36,7 @@ systemctl daemon-reload
 %defattr(0644,root,root)
 /usr/lib/systemd/system/serf.service
 /usr/lib/systemd/system/serf-join.service
+%conf /etc/serf/01default_handlers.json
 %defattr(0755,root,root)
 /usr/lib/redborder/bin
 %doc
