@@ -24,7 +24,7 @@ function exit_function() {
 function isThereMaster() {
     master_chosen="no"
     another_master="no"
-    master_members_result=$($SERF_BIN members -format=json -tag master=yes -status alive)
+    master_members_result=$($SERF_BIN members -format=json -tag master=inprogress|ready -status alive)
     if [ $? -eq 0 ] ; then
         [ "xnull" = "x$(echo $master_members_result | jq -r .members)" ] || master_chosen="yes"
         if [ "x$1" != "x" -a "x$master_chosen" = "xyes" ] ; then
@@ -72,7 +72,7 @@ function lowestIP() {
 
 #
 # Function to get IP of this node using Serf
-# 
+#
 function get_myip() {
     my_ip="null"
     ip_members_result=$($SERF_BIN members -name $OUR_HOSTNAME -format=json -status alive)
@@ -87,7 +87,7 @@ function get_myip() {
     else
         echo "Error in serf members command when trying to get lowest ip!!"
         echo $ip_members_result
-    fi 
+    fi
 
 }
 
@@ -127,7 +127,7 @@ else
             echo "This node is not master"
         else
             #If i am the node with lowest ip, i am a temporal master
-    	    $SERF_BIN tags -set master=yes
+    	    $SERF_BIN tags -set master=inprogress
             EXIT=no
             counter=0
             while [ "x$EXIT" = "xno" -a $counter -le 10 ] ; do
@@ -140,7 +140,7 @@ else
                     EXIT=yes
                 else
                     #Am I the lowest IP of master nodes?
-                    lowestIP -tag master=yes
+                    lowestIP -tag master=inprogress
                     #If not, I am not a master node
                     if [ "x$my_ip" != "x$lowest_ip" ] ; then
                         echo "Found other master, deleting master tag for this node"
