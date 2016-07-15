@@ -36,7 +36,8 @@ systemctl daemon-reload
 %defattr(0644,root,root)
 /usr/lib/systemd/system/serf.service
 /usr/lib/systemd/system/serf-join.service
-%conf /etc/serf/01default_handlers.json
+%config(noreplace)
+/etc/serf/01default_handlers.json
 %defattr(0755,root,root)
 /usr/lib/redborder/bin
 %doc
