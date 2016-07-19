@@ -98,6 +98,10 @@ function usage() {
     echo "  r) allowed roles: regex with roles that can be cluster masters By default: master|corezk|core"
 }
 
+##################################################
+# MAIN EXECUTION
+##################################################
+
 #Getting options
 while getopts "hr:o:" opt ; do
     case $opt in
@@ -106,6 +110,8 @@ while getopts "hr:o:" opt ; do
         o) OUR_HOSTNAME=$OPTARGS;;
     esac
 done
+
+MASTER_RESULT=custom
 
 #Check if serf agent is running
 systemctl is-active serf.service > /dev/null
@@ -137,6 +143,7 @@ else
                 isThereMaster $OUR_HOSTNAME
                 if [ "x$another_master" = "xno" ] ; then
     	              echo "This node is the new master";
+                    MASTER_RESULT=master
                     EXIT=yes
                 else
                     #Am I the lowest IP of master nodes?
@@ -151,5 +158,12 @@ else
                 let counter=counter+1
             done
         fi
+    fi
+    # Execution of post configuration scripts when master have been chosen
+    if [ "x$MASTER_RESULT" = "xmaster" ] ; then
+        rb_configure_master.sh
+        $SERF_BIN tags -set master=ready
+    else
+        rb_configure_custom.sh
     fi
 fi
