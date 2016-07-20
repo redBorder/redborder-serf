@@ -2,7 +2,7 @@
 
 #Default values
 SERF_BIN=serf
-ALLOWED_ROLES="master|corezk|core"
+ALLOWED_ROLES="master|corezk|core|undef"
 OUR_HOSTNAME=$(hostname -s)
 
 
@@ -24,7 +24,7 @@ function exit_function() {
 function isThereMaster() {
     master_chosen="no"
     another_master="no"
-    master_members_result=$($SERF_BIN members -format=json -tag master=inprogress|ready -status alive)
+    master_members_result=$($SERF_BIN members -format=json -tag master="inprogress|ready" -status alive)
     if [ $? -eq 0 ] ; then
         [ "xnull" = "x$(echo $master_members_result | jq -r .members)" ] || master_chosen="yes"
         if [ "x$1" != "x" -a "x$master_chosen" = "xyes" ] ; then
@@ -95,7 +95,7 @@ function get_myip() {
 function usage() {
     echo "rb_serf_join.sh <OPTIONS>"
     echo "  h) usage"
-    echo "  r) allowed roles: regex with roles that can be cluster masters By default: master|corezk|core"
+    echo "  r) allowed roles: regex with roles that can be cluster masters By default: master|corezk|core|undef"
 }
 
 ##################################################
