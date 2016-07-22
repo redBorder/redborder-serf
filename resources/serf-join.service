@@ -1,12 +1,12 @@
 [Unit]
 Description=serf join and master choose service
+Requires=serf
+After=serf
 
 [Service]
 ExecStart=/usr/lib/redborder/bin/serf-join.sh
 RemainAfterExit=yes
 User=root
-Requires=serf
-After=serf
 
 [Install]
 WantedBy=multi-user.target
