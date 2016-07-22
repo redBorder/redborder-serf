@@ -1,9 +1,12 @@
 #!/usr/bin/env ruby
 
+require 'getopt/std'
 require 'json'
 require 'digest/md5'
 
-@query_name="certificate"
+opt = Getopt::Std.getopts("q:")
+
+@query_name=opt["q"].to_s
 @retries=5
 #
 # Function to get a part of RSA certificate using serf queries
@@ -12,7 +15,7 @@ def get_part(query_number)
     part="" 
     tries = @retries
     begin           
-        query=JSON.parse(`serf query -timeout=250ms -format json #{@query_name} #{query_number}`)
+        query=JSON.parse(`serf query -tag master=ready -timeout=250ms -format json #{@query_name} #{query_number}`)
         if !query["Responses"].empty?
             part = query["Responses"].values[0]
         else
