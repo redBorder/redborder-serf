@@ -124,7 +124,7 @@ else
     if [ "x$master_chosen" = "xyes" ] ; then
         echo "There is already a master node"
     else
-        lowestIP -tag role="$ALLOWED_ROLES"
+        lowestIP -tag mode="$ALLOWED_ROLES"
         #TODO: GET MY IP (ESTE ES DE PRUEBA)
         get_myip
         #If there is a node with lowest ip, i am not a master node
