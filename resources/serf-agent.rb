@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+### DEPRECATED ###
+
 require 'ipaddr'
 require 'netaddr'
 require 'system/getifaddrs'
@@ -97,7 +99,7 @@ file_serf_conf = File.open(SERFJSON,"w")
 file_serf_conf.write(serf_conf.to_json)
 file_serf_conf.close
 
-# Create json tags file 
+# Create json tags file
 file_serf_tags = File.open(TAGSJSON,"w")
 file_serf_tags.write(serf_tags.to_json)
 file_serf_tags.close
