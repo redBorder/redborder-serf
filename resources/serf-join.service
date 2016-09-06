@@ -1,7 +1,7 @@
 [Unit]
 Description=serf join and master choose service
-Requires=serf
-After=serf
+Requires=serf.service
+After=serf.service
 
 [Service]
 ExecStart=/usr/lib/redborder/bin/serf-join.sh
