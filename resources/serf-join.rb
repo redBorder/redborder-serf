@@ -20,7 +20,7 @@ end
 
 #This code will be executed when node have been joined to cluster (end of script)
 def fPost
-    exec("serf-choose-master.sh")
+    exec("serf-choose-leader.sh")
     exit(0)
 end
 

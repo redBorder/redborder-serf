@@ -12,19 +12,19 @@ opt = Getopt::Std.getopts("q:")
 # Function to get a part of RSA certificate using serf queries
 #
 def get_part(query_number)
-    part="" 
+    part=""
     tries = @retries
-    begin           
-        query=JSON.parse(`serf query -tag master=ready -timeout=250ms -format json #{@query_name} #{query_number}`)
+    begin
+        query=JSON.parse(`serf query -timeout=250ms -format json #{@query_name} #{query_number}`)
         if !query["Responses"].empty?
             part = query["Responses"].values[0]
         else
             raise
         end
-    rescue        
-        STDERR.puts "No response for query part #{query_number}, retrying #{tries} times more" 
+    rescue
+        STDERR.puts "No response for query part #{query_number}, retrying #{tries} times more"
         retry unless (tries -= 1).zero?
-    end 
+    end
     return part
 end
 

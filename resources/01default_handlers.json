@@ -1,6 +1,7 @@
 {
     "event_handlers" : [
         "query:certificate-validator=serf-send-certificate.sh /etc/chef/redborder-validator.pem",
-        "query:certificate-admin=serf-send-certificate.sh /etc/chef/admin.pem"
+        "query:certificate-admin=serf-send-certificate.sh /etc/chef/admin.pem",
+        "query:chef-server-location=serf-chef-server-location.sh /etc/redborder/chef-server.location"
     ]
 }
