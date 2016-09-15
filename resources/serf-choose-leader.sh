@@ -176,6 +176,6 @@ else
         rb_configure_leader.sh
         $SERF_BIN tags -set leader=ready
     else
-        rb_configure_custom.sh #Pass chef location??
+        rb_configure_custom.sh $chef_location
     fi
 fi

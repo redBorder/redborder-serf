@@ -3,8 +3,10 @@
 CERT=$1
 SPLITSIZE=900
 
-if [ "x$CERT" == "x" ]; then
-	exit 1
+if [ "x$CERT" == "x" -o ! -f "$CERT" ]; then
+  date=`date +"%m/%d/%Y %T"`
+  logger -t "serf-send-ceritificate" "$date [WARNING]: Impossible to send a valid response"
+  exit 1
 fi
 
 read cert_part
