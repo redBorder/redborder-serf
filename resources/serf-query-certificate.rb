@@ -8,19 +8,6 @@ opt = Getopt::Std.getopts("q:")
 
 @query_name=opt["q"].to_s
 @retries=5
-
-#
-# Function to validate a JSON string
-#
-def is_json?(foo)
-  begin
-    return false unless foo.is_a?(String)
-    JSON.parse(foo).all?
-  rescue JSON::ParserError
-    false
-  end 
-end
-
 #
 # Function to get a part of RSA certificate using serf queries
 #
@@ -30,9 +17,7 @@ def get_part(query_number)
     begin
         query=JSON.parse(`serf query -timeout=250ms -format json #{@query_name} #{query_number}`)
         if !query["Responses"].empty?
-          query["Responses"].each_with_index do |q,i|
-            query_number == 0 ? (part = query["Responses"].values[i] if is_json?(q[1])) : part = query["Responses"].values[i]
-          end
+            part = query["Responses"].values[0]
         else
             raise
         end
