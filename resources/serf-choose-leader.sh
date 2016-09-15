@@ -105,6 +105,23 @@ function usage() {
     echo "  r) allowed roles: regex with roles that can be cluster leaders By default: full|core"
 }
 
+function check_leader_ready() {
+    leader_status="inprogress"
+    while [ "x$leader_status" = "xinprogress" ] ; do
+        query_response=$($SERF_BIN members -format json -tag leader=ready)
+        if [ "x$(echo $query_response | jq -r .members)" = "xnull" ] ; then
+            echo "Leader is not ready yet, waiting 10 seconds..."
+            leader_status="inprogress"
+            sleep 10
+        elif [ "x$(echo $query_response | jq -r .members[0].tags.leader)" = "xready" ] ; then
+            echo "Leader ready!"
+            leader_status="ready"
+        else
+            echo "Error getting leader info"
+            leader_status="error"
+        fi
+    done
+}
 ##################################################
 # MAIN EXECUTION
 ##################################################
@@ -128,6 +145,7 @@ else
     whereIsChef
     if [ "x$chef_location" != "x" ] ; then
         echo "Chef already configured, leader is not necessary"
+        leader_status="ready"
     else
         #Is there leader?
         isThereLeader
@@ -176,6 +194,11 @@ else
         rb_configure_leader.sh
         $SERF_BIN tags -set leader=ready
     else
-        rb_configure_custom.sh $chef_location
+        if [ "x$leader_status" != "xready" ] ; then
+            check_leader_ready
+            if [ "x$leader_status" = "xready" ] ; then
+                rb_configure_custom.sh $chef_location
+            fi
+        fi
     fi
 fi
