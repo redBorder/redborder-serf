@@ -195,10 +195,12 @@ else
         $SERF_BIN tags -set leader=ready
     else
         if [ "x$leader_status" != "xready" ] ; then
-            check_leader_ready
-            if [ "x$leader_status" = "xready" ] ; then
-                rb_configure_custom.sh $chef_location
-            fi
+          check_leader_ready
+          if [ "x$leader_status" = "xready" ] ; then
+            rb_configure_custom.sh $chef_location
+          fi
+        else
+          rb_configure_custom.sh $chef_location
         fi
     fi
 fi
