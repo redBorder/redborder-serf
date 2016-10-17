@@ -197,10 +197,10 @@ else
         if [ "x$leader_status" != "xready" ] ; then
           check_leader_ready
           if [ "x$leader_status" = "xready" ] ; then
-            rb_configure_custom.sh $chef_location
+            rb_configure_custom.sh #$chef_location
           fi
         else
-          rb_configure_custom.sh $chef_location
+          rb_configure_custom.sh #$chef_location
         fi
     fi
 fi
