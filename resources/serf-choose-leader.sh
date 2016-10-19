@@ -2,7 +2,7 @@
 
 #Default values
 SERF_BIN=serf
-ALLOWED_ROLES="core|full"
+ALLOWED_ROLES="full|chef"
 OUR_HOSTNAME=$(hostname -s)
 
 #Wrapper for exit command that clean leader tags in errors.
