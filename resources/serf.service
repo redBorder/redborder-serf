@@ -1,5 +1,6 @@
 [Unit]
 Description=cluster deployment system
+After=network.target
 
 [Service]
 ExecStart=/usr/bin/serf agent -config-dir /etc/serf
