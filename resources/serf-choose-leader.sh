@@ -90,17 +90,9 @@ function get_myip() {
 
 }
 
-function whereIsChef() {
-    query_response=$(serf query -timeout=250ms -format json chef-server-location)
-    chef_location=""
-    if [ $? -eq 0 ] ; then
-        chef_location=$(echo $query_response | jq -r '.Responses | keys[0] as $key | .[$key]' 2> /dev/null)
-    fi
-}
-
 #Usage function
 function usage() {
-    echo "rb_serf_join.sh <OPTIONS>"
+    echo "rb-choose-leader.sh <OPTIONS>"
     echo "  h) usage"
     echo "  r) allowed roles: regex with roles that can be cluster leaders By default: full|core"
 }
@@ -142,9 +134,10 @@ systemctl is-active serf.service > /dev/null
 if [ $? -ne 0 ] ; then
     echo "Serf is not running, exiting..."
 else
-    whereIsChef
-    if [ "x$chef_location" != "x" ] ; then
-        echo "Chef already configured, leader is not necessary"
+    #Check if consul is ready in any node (implies that leader is not necessary more)
+    serf members -tag consul=ready | grep consul=ready &> /dev/null
+    if [ $? -eq 0 ] ; then
+        echo "Consul already configured, leader is not necessary"
         leader_status="ready"
     else
         #Is there leader?
