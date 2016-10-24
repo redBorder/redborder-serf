@@ -32,10 +32,12 @@ end
 info = get_part(0)
 if info.empty?
     STDERR.puts "ERROR: Can't obtain query information"
+    exit 1
 else
     parsed_info=JSON.parse(info)
     if !parsed_info.key?("split") or !parsed_info.key?("md5")
         STDERR.puts "ERROR: Can't get split or md5 key"
+        exit 1
     else
         part=[]
         i=0
@@ -49,6 +51,7 @@ else
             puts "#{result}"
         else
             STDERR.puts "MD5 Checksum error, invalid certificate"
+            exit 1
         end
     end
 end
