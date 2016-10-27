@@ -1,8 +1,14 @@
 druid CHANGELOG
 ===============
 
+0.0.2
+-----
+- [cjmateos]
+  - Update version
+
 0.0.1
 -----
+- 30a86f5 Add doc
 - e0d210e Avoid send empty certificates
 - 332dee2 Fix typo in resources/01default_handlers.json
 - a773679 Replaced chef check for consul check using serf members
