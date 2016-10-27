@@ -4,7 +4,7 @@ Requires=serf.service
 After=serf.service
 
 [Service]
-ExecStart=/usr/lib/redborder/bin/serf-join.sh
+ExecStart=/usr/lib/redborder/bin/serf-join
 RemainAfterExit=yes
 User=root
 
