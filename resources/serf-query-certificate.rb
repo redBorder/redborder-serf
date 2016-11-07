@@ -48,7 +48,7 @@ else
         result = part.join
         md5_result = Digest::MD5.hexdigest(result)
         if md5_result == parsed_info["md5"]
-            puts "#{result}"
+            printf "#{result}"
         else
             STDERR.puts "MD5 Checksum error, invalid certificate"
             exit 1
