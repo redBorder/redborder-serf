@@ -18,6 +18,23 @@ def local_ip?(ip)
     ret
 end
 
+# Check if a IP is member of serf cluster
+def isMember?(ip)
+  ret = false
+  begin
+    serf_members=JSON.parse(`serf members -format=json`)
+    serf_members["members"].each do |member|
+      if "#{ip}:7946" == member["addr"]
+        ret = true
+        break
+      end
+    end
+  rescue Exception => e
+    puts e.message
+  end
+  return ret
+end
+
 #This code will be executed when node have been joined to cluster (end of script)
 def fPost
     exec("serf-choose-leader.sh")
@@ -70,19 +87,13 @@ while count > 0
     report_arpscan = ARPScan("-I #{discover_dev[:interface]} #{discover_net.network}#{discover_net.netmask}")
     report_arpscan.hosts.each do |host|
         # avoid own local ip
-        if local_ip?(host.ip_addr)
+        if local_ip?(host.ip_addr) or isMember?(host.ip_addr)
             next
         end
         # trying to connect to host.ip_addr
         p "Trying to join to #{host.ip_addr}"
         ret = system("serf join #{host.ip_addr}")
-        if ret
-            # Joined successfuly ... exiting
-            f_break = true
-            break
-        end
     end
-    break if f_break
     # scan every 10 seconds
     count = count - 1
     p "Warning: no serf node found, trying again #{count} times" if count > 0
@@ -90,6 +101,5 @@ while count > 0
 end
 
 fPost
-
 
 ## vim:ts=4:sw=4:expandtab:ai:nowrap:formatoptions=croqln:
