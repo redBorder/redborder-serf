@@ -4,7 +4,11 @@ druid CHANGELOG
 0.0.2
 -----
 - [cjmateos]
-  - Update version
+  - 4ae0937 Merge pull request from redBorder/improvement/wrapper_support
+  - b20a6d9 Delete unused scripts
+  - e515d91 Adapt scripts to wrapper
+  - 7792714 Adaption of spec for wrapping ruby scripts
+  - 693945d Update version
 
 0.0.1
 -----
