@@ -8,7 +8,7 @@ License: AGPL 3.0
 URL: https://github.com/redBorder/redborder-common
 Source0: %{name}-%{version}.tar.gz
 
-Requires: serf arp-scan rvm redborder-common jq
+Requires: serf arp-scan redborder-rubyrvm redborder-common jq
 
 %description
 %{summary}
