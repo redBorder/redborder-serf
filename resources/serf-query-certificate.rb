@@ -14,8 +14,10 @@ opt = Getopt::Std.getopts("q:")
 def get_part(query_number)
     part=""
     tries = @retries
+    timeout_factor = 1
     begin
-        query=JSON.parse(`serf query -timeout=250ms -format json #{@query_name} #{query_number}`)
+        timeout = 250 * timeout_factor
+        query=JSON.parse(`serf query -timeout=#{timeout}ms -format json #{@query_name} #{query_number}`)
         if !query["Responses"].empty?
             part = query["Responses"].values[0]
         else
@@ -23,7 +25,9 @@ def get_part(query_number)
         end
     rescue
         STDERR.puts "No response for query part #{query_number}, retrying #{tries} times more"
-        retry unless (tries -= 1).zero?
+        tries -= 1
+        timeout_factor = @retries - tries + 1
+        retry unless tries.zero?
     end
     return part
 end
