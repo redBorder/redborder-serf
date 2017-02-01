@@ -4,10 +4,11 @@ After=network.target
 
 [Service]
 ExecStart=/usr/bin/serf agent -config-dir /etc/serf
+ExecReload=/bin/kill -HUP $MAINPID
 KillSignal=SIGINT
 User=root
 TimeoutStartSec=60
-Restart=on-failure
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
