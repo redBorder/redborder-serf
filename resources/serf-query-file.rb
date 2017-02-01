@@ -6,17 +6,18 @@ require 'digest/md5'
 
 opt = Getopt::Std.getopts("q:")
 
-@query_name=opt["q"].to_s
-@retries=5
+@query_name = opt["q"].to_s
+@retries = 5
+@timeout_slot = 250
 #
-# Function to get a part of RSA certificate using serf queries
+# Function to get a part of a file using serf queries
 #
 def get_part(query_number)
     part=""
     tries = @retries
     timeout_factor = 1
     begin
-        timeout = 250 * timeout_factor
+        timeout = @timeout_slot * timeout_factor
         query=JSON.parse(`serf query -timeout=#{timeout}ms -format json #{@query_name} #{query_number}`)
         if !query["Responses"].empty?
             part = query["Responses"].values[0]
@@ -24,7 +25,7 @@ def get_part(query_number)
             raise
         end
     rescue
-        STDERR.puts "No response for query part #{query_number}, retrying #{tries} times more"
+        STDERR.puts "WARNING: No response for query part #{query_number}, retrying #{tries} times more"
         tries -= 1
         timeout_factor = @retries - tries + 1
         retry unless tries.zero?
@@ -54,7 +55,7 @@ else
         if md5_result == parsed_info["md5"]
             printf "#{result}"
         else
-            STDERR.puts "MD5 Checksum error, invalid certificate"
+            STDERR.puts "ERROR: MD5 Checksum failed, invalid certificate"
             exit 1
         end
     end
