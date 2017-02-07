@@ -37,12 +37,13 @@ end
 
 #This code will be executed when node have been joined to cluster (end of script)
 def fPost
-    exec("serf-choose-leader.sh")
+    #exec("serf-choose-leader.sh")
     exit(0)
 end
 
 USERDATA="/var/lib/cloud/instance/user-data.txt"
-SERFJSON="/etc/serf/00first.json"
+SERFJSON=ARGV[0]
+
 serf_conf = {}
 
 # Is there the first conf file?
@@ -50,7 +51,7 @@ if File.exist?SERFJSON
     file_serf_conf = File.read(SERFJSON)
     serf_conf = JSON.parse(file_serf_conf)
 else
-    p "Error loading serf config file #{SERFJSON}"
+    p "Error loading serf config file #{SERFJSON}. Must be the first parameter"
     exit(1)
 end
 

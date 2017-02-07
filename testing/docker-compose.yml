@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+  node1:  
+    build: .
+    volumes:
+      - ../:/app
+  node2:
+    build: .
+    command: /entrypoint.sh node1
+    volumes:
+      - ../:/app
+  node3:
+    build: .
+    command: /entrypoint.sh node1
+    volumes:
+      - ../:/app

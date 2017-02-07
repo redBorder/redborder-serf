@@ -1,3 +1,6 @@
 # SOURCES and pkgs
 SOURCES
 pkgs
+
+# Development
+.DS_Store
