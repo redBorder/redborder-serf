@@ -4,9 +4,10 @@ require 'getopt/std'
 require 'json'
 require 'digest/md5'
 
-opt = Getopt::Std.getopts("q:")
+opt = Getopt::Std.getopts("q:t:")
 
 @query_name = opt["q"].to_s
+opt["t"].nil? ? @tag_filter = "" : @tag_filter = "-tag #{opt["t"].to_s}"
 @retries = 5
 @timeout_slot = 250
 #
@@ -18,7 +19,7 @@ def get_part(query_number)
     timeout_factor = 1
     begin
         timeout = @timeout_slot * timeout_factor
-        query=JSON.parse(`serf query -timeout=#{timeout}ms -format json #{@query_name} #{query_number}`)
+        query=JSON.parse(`serf query #{@tag_filter} -timeout=#{timeout}ms -format json #{@query_name} #{query_number}`)
         if !query["Responses"].empty?
             part = query["Responses"].values[0]
         else
