@@ -87,6 +87,9 @@ READY_TAG="consul=ready"
 LEADER_TAG="leader=wait"
 LEADER_SCRIPT=""
 FOLLOWER_SCRIPT=""
+MAX_WAIT=120
+INTERVAL=5
+ELAPSED=0
 
 #Getting options
 while getopts "hc:r:t:l:f:n:b:" opt ; do
@@ -115,53 +118,67 @@ leader_flag=1 #By default, follower script should be executed
 leader_tag_key=$(echo $LEADER_TAG | cut -d '=' -f 1)
 
 #Check if READY_TAG is set in a node
-serf members -tag $READY_TAG | grep -q $READY_TAG
-if [ $? -eq 0 ] ; then
-    echo "INFO: Ready tag ($READY_TAG) detected, this node is a follower"
-else
-    #Is there leader?
-    countLeaders
-    #If there are more than 0 leaders, I am not a leader
-    if [ $leader_count -gt 0 ] ; then
-        echo "INFO: There is already a leader node (leader tag = $leader_tag_key), this node is a follower"
-    else
-        lowestIP
-        get_myip
-        #If there is a node with lowest ip, i am not a leader node
-        if [ "x$my_ip" != "x$lowest_ip" ] ; then
-            $SERF_BIN tags -delete $leader_tag_key > /dev/null
-            echo "INFO: this node is a follower (leader tag = $leader_tag_key)"
-        else
-            #If i am the node with lowest ip, i am a temporal leader
-            echo "INFO: becoming a provisional leader... (leader tag = $leader_tag_key)"
-    	    $SERF_BIN tags -set $LEADER_TAG > /dev/null
-            EXIT=no
-            counter=0
-            while [ "x$EXIT" = "xno" -a $counter -le 10 ] ; do
-                #Wait to detect if there is another recent leader
-                sleep 2
-                #Is there another leader?
-                countLeaders
-                if [ $leader_count -eq 1 ] ; then
-    	              echo "INFO: this node is the new leader (leader tag = $leader_tag_key)";
-                    leader_flag=0
-                    EXIT=yes
-                else
-                    #Am I the lowest IP of leader nodes?
-                    lowestIP ${leader_tag_key}= 
-                    #If not, I am not a leader node
-                    if [ "x$my_ip" != "x$lowest_ip" ] ; then
-                        echo "INFO: another leader was found, deleting leader tag for this node (leader tag = $leader_tag_key)"
-                        $SERF_BIN tags -delete $leader_tag_key > /dev/null
-                        EXIT=yes
-                    fi
-                fi
-                let counter=counter+1
-            done
-            [ $counter -gt 10 ] && echo "WARNING: there was a convergence problem electing leader (leader tag = $leader_tag_key), could be duplicates!!"
-        fi
+echo "Polling for leader..."
+while true; do
+    serf members -tag "$READY_TAG" | grep -q "$READY_TAG"
+    if [ $? -eq 0 ]; then
+        echo "INFO: Ready tag ($READY_TAG) detected, this node is a follower"
+        break
     fi
-fi
+
+    # Timeout check
+    if [ $ELAPSED -ge $MAX_WAIT ]; then
+        echo "WARNING: Timeout waiting for ready tag ($READY_TAG). Proceeding as leader."
+        #Is there leader?
+        countLeaders
+        #If there are more than 0 leaders, I am not a leader
+        if [ $leader_count -gt 0 ] ; then
+            echo "INFO: There is already a leader node (leader tag = $leader_tag_key), this node is a follower"
+            break
+        else
+            lowestIP
+            get_myip
+            #If there is a node with lowest ip, i am not a leader node
+            if [ "x$my_ip" != "x$lowest_ip" ] ; then
+                $SERF_BIN tags -delete $leader_tag_key > /dev/null
+                echo "INFO: this node is a follower (leader tag = $leader_tag_key)"
+            else
+                #If i am the node with lowest ip, i am a temporal leader
+                echo "INFO: becoming a provisional leader... (leader tag = $leader_tag_key)"
+                $SERF_BIN tags -set $LEADER_TAG > /dev/null
+                EXIT=no
+                counter=0
+                while [ "x$EXIT" = "xno" -a $counter -le 10 ] ; do
+                    #Wait to detect if there is another recent leader
+                    sleep 2
+                    #Is there another leader?
+                    countLeaders
+                    if [ $leader_count -eq 1 ] ; then
+                        echo "INFO: this node is the new leader (leader tag = $leader_tag_key)";
+                        leader_flag=0
+                        EXIT=yes
+                    else
+                        #Am I the lowest IP of leader nodes?
+                        lowestIP ${leader_tag_key}= 
+                        #If not, I am not a leader node
+                        if [ "x$my_ip" != "x$lowest_ip" ] ; then
+                            echo "INFO: another leader was found, deleting leader tag for this node (leader tag = $leader_tag_key)"
+                            $SERF_BIN tags -delete $leader_tag_key > /dev/null
+                            EXIT=yes
+                        fi
+                    fi
+                    let counter=counter+1
+                done
+                [ $counter -gt 10 ] && echo "WARNING: there was a convergence problem electing leader (leader tag = $leader_tag_key), could be duplicates!!"
+            fi
+        fi
+        break
+    fi
+
+    sleep $INTERVAL
+    ELAPSED=$((ELAPSED + INTERVAL))
+done
+
 # Execution of post-scripts
 if [ $leader_flag -eq 0 ] ; then
     if [ "x$LEADER_SCRIPT" != "x" ] ; then
